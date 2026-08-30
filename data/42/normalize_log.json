@@ -1,0 +1,215 @@
+{
+  "corrections_by_field": {
+    "bank_statement.bank_txn_id": 2,
+    "bank_statement.credit": 28,
+    "bank_statement.description[IMPS]": 11,
+    "bank_statement.description[NEFT_CR]": 6,
+    "bank_statement.description[RAZORPAY_SETTLEMENT]": 11,
+    "bank_statement.running_balance": 28,
+    "bank_statement.value_date": 14,
+    "orders.order_id": 33,
+    "settlement_report.entity_id": 44,
+    "settlement_report.order_id": 33,
+    "settlement_report.payment_id": 35,
+    "settlement_report.settlement_id": 36,
+    "settlement_report.settlement_utr": 33
+  },
+  "total_corrections": 314,
+  "rows_by_file": {
+    "orders.csv": 504,
+    "settlement_report.csv": 478,
+    "bank_statement.csv": 28
+  },
+  "samples": [
+    {
+      "field": "orders.order_id",
+      "raw": "  order_97p76dr5jr2m0m ",
+      "normalized": "order_97p76dr5jr2m0m"
+    },
+    {
+      "field": "orders.order_id",
+      "raw": "ORDEr_9bgxf353acx47d",
+      "normalized": "order_9bgxf353acx47d"
+    },
+    {
+      "field": "orders.order_id",
+      "raw": "ORDEr_cgttujii7kd73d",
+      "normalized": "order_cgttujii7kd73d"
+    },
+    {
+      "field": "settlement_report.payment_id",
+      "raw": "  pay_8jg0udftf98tkq  ",
+      "normalized": "pay_8jg0udftf98tkq"
+    },
+    {
+      "field": "settlement_report.entity_id",
+      "raw": "PAY_j3rup4c65weohe  ",
+      "normalized": "pay_j3rup4c65weohe"
+    },
+    {
+      "field": "settlement_report.entity_id",
+      "raw": "  PAY_JQBQ8CK7GAOVY4  ",
+      "normalized": "pay_jqbq8ck7gaovy4"
+    },
+    {
+      "field": "settlement_report.settlement_utr",
+      "raw": " 535865994834",
+      "normalized": "535865994834"
+    },
+    {
+      "field": "settlement_report.entity_id",
+      "raw": "  pay_k7w3pf78p2ppnt ",
+      "normalized": "pay_k7w3pf78p2ppnt"
+    },
+    {
+      "field": "settlement_report.payment_id",
+      "raw": " pay_k7w3pf78p2ppnt ",
+      "normalized": "pay_k7w3pf78p2ppnt"
+    },
+    {
+      "field": "settlement_report.order_id",
+      "raw": " ORDER_YVJGMFF0FWXKER ",
+      "normalized": "order_yvjgmff0fwxker"
+    },
+    {
+      "field": "settlement_report.order_id",
+      "raw": " ORDEr_i5kwrl9m4w25rf",
+      "normalized": "order_i5kwrl9m4w25rf"
+    },
+    {
+      "field": "settlement_report.settlement_utr",
+      "raw": "  249322824588  ",
+      "normalized": "249322824588"
+    },
+    {
+      "field": "settlement_report.settlement_id",
+      "raw": "  SETL_1kb7ws08ojoal2  ",
+      "normalized": "setl_1kb7ws08ojoal2"
+    },
+    {
+      "field": "settlement_report.payment_id",
+      "raw": "  pay_fotswjgjadqj45  ",
+      "normalized": "pay_fotswjgjadqj45"
+    },
+    {
+      "field": "settlement_report.settlement_utr",
+      "raw": "  540876212627 ",
+      "normalized": "540876212627"
+    },
+    {
+      "field": "settlement_report.settlement_id",
+      "raw": "setl_2l18sswp1sby2y  ",
+      "normalized": "setl_2l18sswp1sby2y"
+    },
+    {
+      "field": "settlement_report.settlement_id",
+      "raw": "  setl_2l18sswp1sby2y  ",
+      "normalized": "setl_2l18sswp1sby2y"
+    },
+    {
+      "field": "settlement_report.order_id",
+      "raw": "order_82zogrvtj4jgx2 ",
+      "normalized": "order_82zogrvtj4jgx2"
+    },
+    {
+      "field": "bank_statement.value_date",
+      "raw": "03/05/2025",
+      "normalized": "2025-05-03"
+    },
+    {
+      "field": "bank_statement.description[NEFT_CR]",
+      "raw": "NEFT CR-535865994834-RAZORPAY SOFTWARE PVT LTD",
+      "normalized": "535865994834"
+    },
+    {
+      "field": "bank_statement.credit",
+      "raw": "44,735.78",
+      "normalized": "4473578"
+    },
+    {
+      "field": "bank_statement.running_balance",
+      "raw": "2,94,735.78",
+      "normalized": "29473578"
+    },
+    {
+      "field": "bank_statement.description[RAZORPAY_SETTLEMENT]",
+      "raw": "RAZORPAY SETTLEMENT 249322824588",
+      "normalized": "249322824588"
+    },
+    {
+      "field": "bank_statement.credit",
+      "raw": "22,288.68",
+      "normalized": "2228868"
+    },
+    {
+      "field": "bank_statement.running_balance",
+      "raw": "3,17,024.46",
+      "normalized": "31702446"
+    },
+    {
+      "field": "bank_statement.value_date",
+      "raw": "05/05/2025",
+      "normalized": "2025-05-05"
+    },
+    {
+      "field": "bank_statement.description[RAZORPAY_SETTLEMENT]",
+      "raw": "RAZORPAY SETTLEMENT 540876212627",
+      "normalized": "540876212627"
+    },
+    {
+      "field": "bank_statement.credit",
+      "raw": "24,460.32",
+      "normalized": "2446032"
+    },
+    {
+      "field": "bank_statement.running_balance",
+      "raw": "3,41,484.78",
+      "normalized": "34148478"
+    },
+    {
+      "field": "bank_statement.description[IMPS]",
+      "raw": "IMPS/839364411736/RAZORPAYSOFT",
+      "normalized": "839364411736"
+    },
+    {
+      "field": "bank_statement.value_date",
+      "raw": "07/05/2025",
+      "normalized": "2025-05-07"
+    },
+    {
+      "field": "bank_statement.description[RAZORPAY_SETTLEMENT]",
+      "raw": "RAZORPAY SETTLEMENT 997058336328",
+      "normalized": "997058336328"
+    },
+    {
+      "field": "bank_statement.description[IMPS]",
+      "raw": "IMPS/253680349889/RAZORPAYSOFT",
+      "normalized": "253680349889"
+    },
+    {
+      "field": "bank_statement.description[NEFT_CR]",
+      "raw": "NEFT CR-233052484403-RAZORPAY SOFTWARE PVT LTD",
+      "normalized": "233052484403"
+    },
+    {
+      "field": "bank_statement.description[NEFT_CR]",
+      "raw": "NEFT CR-823289948772-RAZORPAY SOFTWARE PVT LTD",
+      "normalized": "823289948772"
+    },
+    {
+      "field": "bank_statement.description[IMPS]",
+      "raw": "IMPS/298423060059/RAZORPAYSOFT",
+      "normalized": "298423060059"
+    },
+    {
+      "field": "bank_statement.bank_txn_id",
+      "raw": "TXN149932762400  ",
+      "normalized": "txn149932762400"
+    },
+    {
+      "field": "bank_statement.bank_txn_id",
+      "raw": "txn895965052679  ",
+      "normalized": "txn895965052679"
+    }
+  ]
+}

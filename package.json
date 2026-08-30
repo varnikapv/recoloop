@@ -1,0 +1,33 @@
+{
+  "name": "recoloop",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "tsx scripts/checkIsolation.ts && next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "generate": "tsx scripts/generate.ts",
+    "verify": "tsx scripts/verify.ts",
+    "match": "tsx scripts/match.ts",
+    "score": "tsx scripts/scoreMatch.ts",
+    "check:isolation": "tsx scripts/checkIsolation.ts",
+    "classify": "tsx scripts/classify.ts",
+    "score:classify": "tsx scripts/scoreClassify.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.122.0",
+    "@google/genai": "^2.19.0",
+    "next": "15.5.24",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "zod": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.0",
+    "tsx": "4.19.2",
+    "typescript": "5.7.2"
+  }
+}

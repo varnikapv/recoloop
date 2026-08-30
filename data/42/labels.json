@@ -1,0 +1,242 @@
+[
+  {
+    "record_type": "settlement_line",
+    "record_id": "adj_07mjfro065m3yh",
+    "true_cause": "CHARGEBACK_DEBIT",
+    "note": "Adjustment debit of 1202400 paise with no corresponding order or payment in either source."
+  },
+  {
+    "record_type": "settlement_line",
+    "record_id": "adj_lw2q928a25rilh",
+    "true_cause": "CHARGEBACK_DEBIT",
+    "note": "Adjustment debit of 314100 paise with no corresponding order or payment in either source."
+  },
+  {
+    "record_type": "settlement_line",
+    "record_id": "adj_qfhtq64qmw5wct",
+    "true_cause": "CHARGEBACK_DEBIT",
+    "note": "Adjustment debit of 648900 paise with no corresponding order or payment in either source."
+  },
+  {
+    "record_type": "order",
+    "record_id": "order_1vduw8oxoz82vx",
+    "true_cause": "SILENT_UPI_FAIL",
+    "note": "Order left in 'pending' although pay_km3a0ew64myc9p was captured for 35600 paise and settled."
+  },
+  {
+    "record_type": "order",
+    "record_id": "order_72fnzlcu4vdgzv",
+    "true_cause": "DUPLICATE_WEBHOOK",
+    "note": "Duplicate of order order_cn3gdq5qvba2k5: same amount 40200 paise, created 69s apart. Only order_cn3gdq5qvba2k5 has a settlement line."
+  },
+  {
+    "record_type": "order",
+    "record_id": "order_87n15wi8vh1pzc",
+    "true_cause": "SILENT_UPI_FAIL",
+    "note": "Order left in 'pending' although pay_aoj4gqa155i4v9 was captured for 487604 paise and settled."
+  },
+  {
+    "record_type": "order",
+    "record_id": "order_dupx5xh6gxjhtw",
+    "true_cause": "SILENT_UPI_FAIL",
+    "note": "Order left in 'pending' although pay_3otd4aswir3zqd was captured for 66818 paise and settled."
+  },
+  {
+    "record_type": "order",
+    "record_id": "order_i5kwrl9m4w25rf",
+    "true_cause": "SILENT_UPI_FAIL",
+    "note": "Order left in 'pending' although pay_9e8ra9ww6x6jbs was captured for 9900 paise and settled."
+  },
+  {
+    "record_type": "order",
+    "record_id": "order_icjh9jqet2n2ak",
+    "true_cause": "DUPLICATE_WEBHOOK",
+    "note": "Duplicate of order order_1cfvvbv3mlkp4x: same amount 9900 paise, created 89s apart. Only order_1cfvvbv3mlkp4x has a settlement line."
+  },
+  {
+    "record_type": "order",
+    "record_id": "order_lm8r2kcr8xsc09",
+    "true_cause": "DUPLICATE_WEBHOOK",
+    "note": "Duplicate of order order_vxwogaznlaexkb: same amount 33500 paise, created 84s apart. Only order_vxwogaznlaexkb has a settlement line."
+  },
+  {
+    "record_type": "order",
+    "record_id": "order_pq2uzwovet26mz",
+    "true_cause": "DUPLICATE_WEBHOOK",
+    "note": "Duplicate of order order_vtjf1cub68hjo8: same amount 94000 paise, created 18s apart. Only order_vtjf1cub68hjo8 has a settlement line."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_0l5gti9xjkfnuy",
+    "true_cause": "LATE_SETTLEMENT",
+    "note": "Captured 2025-05-14T13:40:38Z but settled on T+5 instead of T+2, landing outside its expected batch."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_51zd3owciuhhdv",
+    "true_cause": "LATE_SETTLEMENT",
+    "note": "Captured 2025-05-27T14:10:15Z but settled on T+5 instead of T+2, landing outside its expected batch."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_63qtghcjdmetfj",
+    "true_cause": "LATE_SETTLEMENT",
+    "note": "Captured 2025-05-10T10:13:59Z but settled on T+5 instead of T+2, landing outside its expected batch."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_6yy5d6591hmvrm",
+    "true_cause": "LATE_SETTLEMENT",
+    "note": "Captured 2025-05-11T00:02:06Z but settled on T+5 instead of T+2, landing outside its expected batch."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_9mrhrp0wv95rs1",
+    "true_cause": "PARTIAL_CAPTURE",
+    "note": "Captured 64402 paise against order order_09j5qk7gkdmwi9 of 126278 paise (short by 61876)."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_g2djaumy88bbmk",
+    "true_cause": "PARTIAL_CAPTURE",
+    "note": "Captured 33345 paise against order order_kr38hgr9pb34l9 of 58500 paise (short by 25155)."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_gccuyzq49ptgsn",
+    "true_cause": "PARTIAL_CAPTURE",
+    "note": "Captured 88180 paise against order order_50sum48b15nzwu of 101356 paise (short by 13176)."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_i6wm51z13gbquk",
+    "true_cause": "LATE_SETTLEMENT",
+    "note": "Captured 2025-05-10T00:16:47Z but settled on T+5 instead of T+2, landing outside its expected batch."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_j5eo0b1yoreol7",
+    "true_cause": "LATE_SETTLEMENT",
+    "note": "Captured 2025-05-19T12:56:11Z but settled on T+5 instead of T+2, landing outside its expected batch."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_k23w1an58sdmu1",
+    "true_cause": "FEE_VARIANCE",
+    "note": "Fee billed at 0.40% instead of the 0.00% upi slab: 209 paise instead of 0."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_k38pknltdmiiue",
+    "true_cause": "FEE_VARIANCE",
+    "note": "Fee billed at 1.40% instead of the 1.80% netbanking slab: 4585 paise instead of 5895."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_niedw9ab36mruv",
+    "true_cause": "PARTIAL_CAPTURE",
+    "note": "Captured 10098 paise against order order_pjxir6m9ylrkmh of 18700 paise (short by 8602)."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_ogk6ab1fnp3e46",
+    "true_cause": "FEE_VARIANCE",
+    "note": "Fee billed at 1.80% instead of the 2.20% wallet slab: 230 paise instead of 282."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_tytt891lwy5n5l",
+    "true_cause": "PARTIAL_CAPTURE",
+    "note": "Captured 50138 paise against order order_k3th78js47yu3l of 94600 paise (short by 44462)."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_us1l6niggidweu",
+    "true_cause": "LATE_SETTLEMENT",
+    "note": "Captured 2025-05-03T06:28:23Z but settled on T+5 instead of T+2, landing outside its expected batch."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_xhlfl5q016qwhu",
+    "true_cause": "FEE_VARIANCE",
+    "note": "Fee billed at 0.40% instead of the 0.00% upi slab: 252 paise instead of 0."
+  },
+  {
+    "record_type": "payment",
+    "record_id": "pay_zxwunwa1gaj79n",
+    "true_cause": "FEE_VARIANCE",
+    "note": "Fee billed at 0.40% instead of the 0.00% upi slab: 674 paise instead of 0."
+  },
+  {
+    "record_type": "refund",
+    "record_id": "rfnd_cesf40bcv2j3se",
+    "true_cause": "REFUND_NETTED",
+    "note": "Refund of 143400 paise against pay_5r2ogzk9fsh5af, a payment settled in a prior cycle. Neither that payment nor order order_y99um1p64f4e83 exists in this dataset."
+  },
+  {
+    "record_type": "refund",
+    "record_id": "rfnd_ij5ouwxmgli1pc",
+    "true_cause": "REFUND_NETTED",
+    "note": "Refund of 1217592 paise against pay_6vjx7pdc8o86d7, a payment settled in a prior cycle. Neither that payment nor order order_kbbkj34jxus3ao exists in this dataset."
+  },
+  {
+    "record_type": "refund",
+    "record_id": "rfnd_p0gbc2si76l5l1",
+    "true_cause": "REFUND_NETTED",
+    "note": "Refund of 321300 paise against pay_1rs2h8nbz3feg8, a payment settled in a prior cycle. Neither that payment nor order order_tl0sdck4j7iz5y exists in this dataset."
+  },
+  {
+    "record_type": "refund",
+    "record_id": "rfnd_pr69qkf89y6h3g",
+    "true_cause": "REFUND_NETTED",
+    "note": "Refund of 11500 paise against pay_aixbrefz3r2fmt, a payment settled in a prior cycle. Neither that payment nor order order_9cvnfkt2sz567n exists in this dataset."
+  },
+  {
+    "record_type": "refund",
+    "record_id": "rfnd_yd6gfllos0hksh",
+    "true_cause": "REFUND_NETTED",
+    "note": "Refund of 57200 paise against pay_xgqx9iio2baz6o, a payment settled in a prior cycle. Neither that payment nor order order_4oy01621k9brdo exists in this dataset."
+  },
+  {
+    "record_type": "refund",
+    "record_id": "rfnd_zqfs11zfgbzs83",
+    "true_cause": "REFUND_NETTED",
+    "note": "Refund of 223474 paise against pay_yil8t4zqvrw0yq, a payment settled in a prior cycle. Neither that payment nor order order_q6gstbjnahy428 exists in this dataset."
+  },
+  {
+    "record_type": "settlement",
+    "record_id": "setl_5k77ta7ivloujs",
+    "true_cause": "ON_HOLD",
+    "note": "Settlement of 2088286 paise (UTR 839201103045) is on hold; no bank credit was ever issued."
+  },
+  {
+    "record_type": "settlement",
+    "record_id": "setl_991x6he4dndeyi",
+    "true_cause": "ON_HOLD",
+    "note": "Settlement of 1978546 paise (UTR 065784438412) is on hold; no bank credit was ever issued."
+  },
+  {
+    "record_type": "settlement",
+    "record_id": "setl_ppgy8a6b1guo9h",
+    "true_cause": "ON_HOLD",
+    "note": "Settlement of 3330059 paise (UTR 745065385326) is on hold; no bank credit was ever issued."
+  },
+  {
+    "record_type": "settlement",
+    "record_id": "setl_y4d22bsf3bi6y5",
+    "true_cause": "ON_HOLD",
+    "note": "Settlement of 824594 paise (UTR 675343972208) is on hold; no bank credit was ever issued."
+  },
+  {
+    "record_type": "bank_txn",
+    "record_id": "txn202718496773",
+    "true_cause": "UNEXPLAINED",
+    "note": "Bank credit of 7329400 paise carrying UTR 912641119112, which belongs to no settlement in the report."
+  },
+  {
+    "record_type": "bank_txn",
+    "record_id": "txn357974481094",
+    "true_cause": "UNEXPLAINED",
+    "note": "Bank credit of 4301700 paise carrying UTR 253680349889, which belongs to no settlement in the report."
+  }
+]
