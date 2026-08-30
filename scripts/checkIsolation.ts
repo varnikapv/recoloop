@@ -17,6 +17,8 @@ const ENTRY_POINTS = [
   "src/lib/classify/prompt.ts",
   "src/lib/classify/rulesProvider.ts",
   "src/lib/classify/geminiProvider.ts",
+  "src/lib/ui/review.ts",
+  "src/app/api/review/route.ts",
   "scripts/classify.ts",
 ];
 const FORBIDDEN_MODULES = ["src/lib/labels.ts"];

@@ -41,6 +41,12 @@ src/lib/classify/rulesProvider.ts offline deterministic baseline
 src/lib/classify/run.ts           retries, confidence gate, resumable writes
 scripts/classify.ts               CLI
 scripts/scoreClassify.ts          CLI — scores against ground truth
+
+src/lib/ui/review.ts          UI data access (scanned by checkIsolation)
+src/app/api/review/route.ts   GET payload / POST one audit entry
+src/app/page.tsx              server component, request-time read
+src/app/ReviewClient.tsx      queue / detail / decision bar
+src/app/globals.css           design tokens
 ```
 
 ## Quickstart
@@ -662,3 +668,74 @@ dropped, with nothing anywhere in the output indicating a second defect was
 present. `Rs 0.00 at risk` is true under an entry-level definition of "wrong" and
 still understates this. The fix is not a better prompt; it is letting a case
 carry more than one cause.
+
+## Exception review UI
+
+```bash
+npm run dev        # then open http://localhost:3000
+```
+
+The reviewer's tool: one page, three panels, no navigation between cases so
+switching is instant. It reads `match_result.json` and `classifications.jsonl`
+at request time and computes no matching and no scoring of its own — every
+figure it shows is either read straight off disk or a sum of values already
+there. The auto-approved total it prints is the same `Rs 40,741.13` that
+`scoreClassify.ts` reports, because both read the same field.
+
+`classifications.jsonl` is hardcoded, never globbed: the other jsonl files beside
+it are alternate-provider runs and must not be picked up by accident.
+
+**It cannot see the answer key.** `src/lib/ui/review.ts` and the route handler
+are both scanned entry points in `scripts/checkIsolation.ts`, so an import of the
+labels loader anywhere in the UI's graph fails the build — the same rule the
+matcher and classifier live under.
+
+### Layout
+
+- **Queue** — every case, sorted the way the work actually arrives: in-review
+  first, then auto-approved, biggest proposed amount first inside each group.
+  Status pill, confidence as a number *and* a bar, filter toggles. A 3px gutter
+  rule carries state, so the queue is readable before any text is.
+- **Detail** — the matcher's evidence as a **ledger**, not cards: label left,
+  figure hard-aligned right in tabular figures, hairline rules between. Then the
+  entities involved, then anything the matcher considered and **ruled out**
+  (dashed borders, so a reviewer never mistakes a near-miss for the match), then
+  the model's verdict with its reasoning verbatim.
+- **Why it is here** — the banner distinguishes *"Model flagged for review"*
+  (`requires_human_review` true while confidence is at or above the gate) from
+  *"Below confidence threshold"*. That is not cosmetic: on this dataset every one
+  of the 16 review flags is the model's own judgment and the 0.7 gate never
+  fired, so collapsing the two would hide the finding.
+- **Decision bar** — Approve / Reject / Reclassify, shown only while a case is
+  undecided. A rejection requires a reason; nothing else is mandatory.
+
+### Audit log
+
+Append-only JSONL at `data/<seed>/audit_log.jsonl` — chosen over Supabase because
+it ships faster and needs no schema, no auth, and no second service for a tool
+whose whole state is one growing list. Every action appends one line and nothing
+is ever rewritten: deciding the same case twice leaves both lines, in order. The
+route re-reads the case server-side before writing, so the log records what the
+model actually said rather than what a browser claimed. The expandable panel
+under the queue shows the trail read-only, so the reviewer does not have to take
+it on faith. The file is gitignored — it is reviewer state, not a build artefact.
+
+### Design
+
+*Industrial utilitarian.* IBM Plex Sans for labels, IBM Plex Mono for every
+identifier and every amount, self-hosted through `next/font` so a live demo never
+waits on a font CDN. One warm neutral system; colour appears only in the three
+status pills and the confidence bar. No shadows, no radii above 3px, hairline
+rules instead of cards. Density is deliberate: generous space *between* cases,
+tight *within* one, so a reviewer working a queue all day is reading rows rather
+than hunting them.
+
+### The case to demo
+
+`res_bf9684ba` — a batch on hold that also bundles a duplicated order row. The
+evidence ledger shows `Orders in group: 2`, `Settled orders: 1`,
+`Unsettled orders: 1`, `Duplicate of: order_vxwogaznlaexkb`. The model returned
+`ON_HOLD` at `confidence: 1.00` and auto-approved it. Every fact needed to name
+the second defect is on screen, and nothing in the UI says a second defect
+exists — which is the blind spot `scoreClassify.ts` measures as the 37/40
+ceiling, made visible.

@@ -9,3 +9,6 @@ next-env.d.ts
 !.env.example
 *.key
 *.pem
+
+# Reviewer decisions are runtime state, not a build artefact.
+data/*/audit_log.jsonl
