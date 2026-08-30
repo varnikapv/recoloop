@@ -49,6 +49,9 @@ src/app/ReviewClient.tsx      queue / detail / decision bar
 src/app/globals.css           design tokens
 ```
 
+A running log of every defect found during construction — what caught each one,
+and what it cost — is in [FAILURES.md](FAILURES.md).
+
 ## Quickstart
 
 ```bash
