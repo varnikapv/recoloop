@@ -93,16 +93,15 @@ why that is a build-time guarantee rather than a promise.
 paise, with **40 seeded defects across 9 causal classes** (taxonomy in the
 [README](README.md)). Each defect's `true_cause` lives only in `labels.json`.
 
-Synthetic-with-ground-truth beats a handful of real examples for one reason: it
-lets the system be *scored*. Precision and recall against known answers are
-arguments; a demo that looks right is an anecdote. It also means the pipeline can
-be stress-tested — **42 seeds, order counts from 60 to 5,000**, all holding 40/40.
+Synthetic-with-ground-truth beats a handful of real examples for one reason: it lets
+the system be *scored*. Precision and recall against known answers are arguments; a
+demo that looks right is an anecdote. It also means the pipeline can be
+stress-tested — **42 seeds, order counts from 60 to 5,000**, all holding 40/40.
 
 The generator also injects *dirt*, deliberately not a defect: dates alternate
 between `DD/MM/YYYY` and `YYYY-MM-DD`, ~8% of id cells carry stray whitespace and
 mixed case, and bank amounts arrive as comma-grouped rupee strings like
-`"1,24,530.00"`. That makes normalization real engineering — a matcher that skips
-it produces false positives unrelated to the 40 real breaks.
+`"1,24,530.00"` — which is what makes normalization real engineering.
 
 ### The contract
 
@@ -115,30 +114,29 @@ settlement.net_amount_paise = Σ line.credit_paise − Σ line.debit_paise
 fee = round(amount * bp / 10_000)      tax = round(fee * 18 / 100)
 ```
 
-A payment line credits `amount − fee − tax`; refunds and adjustments debit in
-full. Every `processed` settlement produces exactly one bank credit equal to its
-net; every `on_hold` settlement produces none. Fee rates are basis points
-(`upi 0, card 200, netbanking 180, wallet 220`), so money is integer paise end to
-end — the only rupees-with-decimals are the bank statement's *rendering*, parsed
-back as a string, never through `parseFloat`.
+A payment line credits `amount − fee − tax`; refunds and adjustments debit in full.
+Every `processed` settlement produces exactly one bank credit equal to its net;
+every `on_hold` settlement produces none. Fee rates are basis points (`upi 0, card
+200, netbanking 180, wallet 220`), so money is integer paise end to end — the only
+rupees-with-decimals are the bank statement's *rendering*, parsed back as a string,
+never through `parseFloat`.
 
 ### Two stated assumptions
 
 **1. The settlement report carries `order_id` and `method`.** Razorpay's recon
-report carries `entity_id`; `payment_id` here is faithful to that. The other two
-are additions, encoding the assumption that *the merchant's own order system
-enriches the recon feed at ingestion time* — a normal thing to build, but an
-assumption about the merchant's stack, not a property of the gateway. It does not
-make matching easier where it counts; it makes `PARTIAL_CAPTURE`,
-`SILENT_UPI_FAIL` and `FEE_VARIANCE` *detectable*. Strip those columns and three
-defect classes become undetectable in principle, making the dataset unscoreable
-rather than harder.
+report carries `entity_id`; `payment_id` is faithful to that. The other two are
+additions, encoding the assumption that *the merchant's own order system enriches
+the recon feed at ingestion time* — normal to build, but an assumption about the
+merchant's stack, not a property of the gateway. It does not make matching easier
+where it counts; it makes `PARTIAL_CAPTURE`, `SILENT_UPI_FAIL` and `FEE_VARIANCE`
+*detectable*. Strip them and three defect classes become undetectable in
+principle, making the dataset unscoreable rather than harder.
 
 **2. Debits are bounded so a batch is never a net debit.** Real batches never are,
 but an ₹85,000 refund against a day whose gross credits total ~₹30,000 would make
 one. Debits are capped at half the median daily gross, and anything a batch cannot
-absorb carries forward once — what a gateway does when a day's refunds outrun its
-captures. The bound exists because its absence was a live bug (defect 2).
+absorb carries forward once. The bound exists because its absence was a live bug
+(FAILURES.md #1).
 
 ### The verifier restates the contract independently
 
@@ -147,7 +145,7 @@ invariants, exiting non-zero on any failure. It **imports no business logic from
 the generator**, only parsing helpers: every rate and constant is restated from
 the documented contract, so a generator bug cannot hide inside a helper both
 sides call. Not hypothetical — an earlier version imported the very constant it was
-meant to check (defect 4). Three of the ten carry the coverage story; the rest
+meant to check. Three of the ten carry the coverage story; the rest
 check label integrity, leak, ordering, running balance and integer money.
 
 ```
@@ -171,13 +169,13 @@ orchestrator:
    compare captured against ordered, fee against the published slab.
 3. **settlement ↔ bank credit** — group by `settlement_id`, reconstruct the batch
    net, tie it to one bank credit through the UTR, ±1 paise.
-4. **date tolerance** — compute the day-delta and carry it forward as evidence.
+4. **date tolerance** — compute the day-delta and carry it forward as evidence;
    T+2 is never a hard match/no-match boundary.
 
 ### The twelve finding codes
 
-Stages emit *findings*, not verdicts. Each takes ownership of the entities it
-fired on, and ownership is what the partition is defined over.
+Stages emit *findings*, not verdicts. Each owns the entities it fired on, and
+ownership is what the partition is defined over.
 
 | code | fires on |
 | --- | --- |
@@ -194,10 +192,10 @@ fired on, and ownership is what the partition is defined over.
 | **`SETTLEMENT_ON_HOLD`** | held batch: money owed that never arrived |
 | **`ORDER_STATUS_CONTRADICTION`** | settled payment against an order still `pending` |
 
-`NET_MISMATCH`, `SETTLEMENT_WITHOUT_BANK_CREDIT` and
-`UNEXPECTED_BANK_CREDIT_ON_HOLD` never fire here, which is correct rather than
-dead code: the report is internally consistent by construction, so no defect can
-make a batch net disagree with its own lines.
+`NET_MISMATCH`, `SETTLEMENT_WITHOUT_BANK_CREDIT` and `UNEXPECTED_BANK_CREDIT_ON_HOLD`
+never fire here, which is correct rather than dead code: the report is internally
+consistent by construction, so no defect can make a batch net disagree with its own
+lines.
 
 **The three bolded codes are additions, and without them capture would have been
 27/40.** The specified net check compares a batch against its own lines, which is
@@ -237,17 +235,15 @@ flowchart TB
   class EX exc
   class ASSERT assert```
 
-It was not theory. It caught two bugs that seed 42 never exposed and that only
-appeared across a 42-seed sweep: clean **refund lines went unaccounted** when their
-parent order was tainted for an unrelated reason, and **settlements that reconciled
-perfectly but had no surviving clean line vanished entirely**. Forty lines of
-assertion; two bugs neither the type checker nor a passing scorer would surface.
+It was not theory: it caught two bugs seed 42 never exposed and only a 42-seed
+sweep revealed — clean **refund lines went unaccounted** when their parent order was
+tainted, and **settlements that reconciled perfectly but had no surviving clean
+line vanished entirely** (FAILURES.md #2).
 
 `excluded` is a third bucket on purpose: a `cancelled` order with no payment *is*
 reconciled — it expected no money and saw none, and filing those 41 rows as
 exceptions would wreck the match rate. Ownership keeps it well-defined: only a
-**payment** line's matched record claims its order, and a reconciled batch is
-matched even when individual lines are disputed.
+**payment** line's matched record claims its order.
 
 ### Results
 
@@ -257,11 +253,10 @@ matched even when individual lines are disputed.
 | match rate by count | **89.81%** |
 | match rate by value | **73.66%** |
 
-The value rate is lower for a structural reason: a few residue entries own a
-great deal of money. An on-hold settlement owns its **entire batch**, and the two
-unexplained credits are single large rows. Five entries carry 70% of residue
-value; the four on-hold batches alone carry 31%. It is not that defective
-*transactions* are larger — a few defects implicate whole batches. That
+The value rate is lower for a structural reason: a few residue entries own a great
+deal of money. An on-hold settlement owns its **entire batch** — five entries carry
+70% of residue value, the four on-hold batches alone 31%. It is not that defective
+*transactions* are larger; a few defects implicate whole batches, and that
 concentration is the argument for scrutiny: the exceptions are where the money is.
 
 `scoreMatch.ts` prints a full finding-type × true-cause cross-tab, credited per
@@ -270,16 +265,14 @@ finding over the entities it fired on. Every type is perfectly precise except on
 noise (§6) — which is why stage 4 hands over a raw day-delta, not a verdict.
 
 **Known precision limit.** The duplicate heuristic (identical amount, ≤90s apart)
-degrades with order density: at `--orders 5000` it produces 20
-`DUPLICATE_ORDER_PAIR` findings for 12 real defects. Capture stays 120/120, so the
-cost is precision, not recall — the right direction for a stage feeding a
-classifier.
+degrades with density: at `--orders 5000` it produces 17 `DUPLICATE_ORDER_PAIR`
+findings for 12 real defects. Capture stays 120/120, so the cost is precision, not
+recall — the right direction for a stage feeding a classifier.
 
 **Output departures from the spec.** `excluded` is a third bucket, per above.
-`entities` uses arrays rather than singular keys, because a duplicate pair owns
-two orders and a held batch owns twenty lines. Each residue entry carries a
-`findings` array — code plus exact entity ids — so the cross-tab is computed per
-finding; without it an entry with two findings would be double-counted.
+`entities` uses arrays rather than singular keys, because a duplicate pair owns two
+orders and a held batch owns twenty lines. Each residue entry carries a `findings`
+array — code plus entity ids — so the cross-tab is computed per finding.
 
 ## 6. Classifier
 
@@ -297,8 +290,7 @@ keywords — nothing is lost, since Zod remains the enforcement layer.
 `gemini`, and a deterministic `rules` baseline. Adding Gemini required **zero
 changes** to the matcher, prompt, output contract, gate, scorer or taxonomy — only
 a transport and config wiring, with shared backoff *extracted* rather than
-duplicated: the difference between a bounded component and an API call braided
-through orchestration logic.
+duplicated.
 
 ### Robustness
 
@@ -307,9 +299,9 @@ through orchestration logic.
 | schema violation | retry **once** with the validation error fed back; second failure falls through to a human-review record. The batch never crashes |
 | transport failure | caught per entry, recorded, batch continues |
 | 429 / 5xx | exponential backoff honouring `retry-after`, up to 6 attempts |
-| crash mid-run | results append one line at a time, so a crash on case 40 keeps 39; a torn line is tolerated on read and compacted away before the next append (defect 10) |
-| rerun | entries already present are skipped — **except** `transport_failure` rows, where the model never saw the case (defect 11) |
-| rerun, different provider | refused with a non-zero exit; resume is keyed on `residue_id` and would otherwise report the previous provider's numbers as this one's (defect 19) |
+| crash mid-run | results append one line at a time, so a crash on case 40 keeps 39; a torn line is tolerated on read and compacted away before the next append |
+| rerun | entries already present are skipped — **except** `transport_failure` rows, where the model never saw the case (FAILURES.md #3) |
+| rerun, different provider | refused with a non-zero exit; resume is keyed on `residue_id` and would otherwise report the previous provider's numbers as this one's (FAILURES.md #3) |
 
 ### A causal taxonomy, not a symptomatic one
 
@@ -353,23 +345,22 @@ flowchart LR
   style CAU fill:#f9f6fc,stroke:#6b4f8f,color:#3d2b55```
 
 The 1:1 arrow is the easy half — a lookup table gets it, which is what the `rules`
-baseline is and why it also scores 37/40. The forks are the work: a delay of
-exactly 3 days is almost always a capture that crossed midnight relative to its
-order, not a genuine T+5 payout, because `captured_at` is published nowhere and
-the delta must be measured from the order's `created_at`.
+baseline is and why it also scores 37/40. The forks are the work: a delay of exactly
+3 days is almost always a capture that crossed midnight, not a genuine T+5 payout,
+because `captured_at` is published nowhere and the delta must be measured from the
+order's `created_at`.
 
-**`INSUFFICIENT_EVIDENCE` is rewarded, not tolerated.** The prompt states plainly
-that a confident wrong cause is far more expensive than an honest "I cannot tell",
-because a high-confidence answer can be auto-approved and **booked without a human
-reading it**. It works: **6 of 6 matcher false positives were correctly declined**
-at 0.9–1.0 confidence — the model is *certain* they are not defects.
+**`INSUFFICIENT_EVIDENCE` is rewarded, not tolerated.** The prompt states that a
+confident wrong cause is far more expensive than an honest "I cannot tell", because
+a high-confidence answer can be auto-approved and **booked without a human reading
+it**. It works: **6 of 6 matcher false positives were correctly declined** at
+0.9–1.0 confidence.
 
 **Two structural facts the score depends on.** The ceiling is 37/40: three entries
-bundle two real defects each and one prediction cannot name both, so
-`scoreClassify.ts` prints the ceiling rather than letting the headline look like
-model failure. And six entries carry no defect at all — the T+3 false positives —
-scored separately, because "does it know the matcher was wrong" is a different
-question from "can it name a real defect".
+bundle two real defects each and one prediction cannot name both, so the scorer
+prints the ceiling rather than letting the headline look like model failure. And
+six entries carry no defect at all — the T+3 false positives — scored separately,
+because "does it know the matcher was wrong" is a different question.
 
 ## 7. The confidence gate — and what actually happened
 
@@ -386,9 +377,9 @@ flag. **The result**, both runs complete at 43/43, scored by the same script:
 | unreviewed ₹ exposure | **₹2,21,709.87** | **₹40,741.13** |
 | wrong auto-approvals | 0 | 0 |
 
-Both hit the same headline, which is the point: on unambiguous cases a lookup
-table is already correct. The model earns its place by cutting unreviewed
-exposure **82%** at no cost in accuracy. Three findings matter more than that.
+Both hit the same headline, which is the point: on unambiguous cases a lookup table
+is already correct. The model earns its place by cutting unreviewed exposure **82%**
+at no cost in accuracy. Three findings matter more than that.
 
 **1. The 0.70 threshold never fired.** Zero of the 16 review flags came from the
 gate; Gemini's confidence never dropped below 0.90 across all 43 cases, including
@@ -409,11 +400,9 @@ of the three were auto-approved as `ON_HOLD` at confidence 1.00.**
 
 The interesting part is where the second defect went. The model did not miss it:
 in all three cases it named the duplicate pair in its reasoning, once by the
-literal cause name (*"While there is a DUPLICATE_WEBHOOK between … the ON_HOLD
-status is a settlement-level cause that takes precedence"*). Then
-`predicted_cause` — a single enum — kept one and discarded the other at the schema
-boundary, and everything downstream scores, routes and books on the survivor
-alone. The reported `Rs 0.00 at risk` is true under an entry-level definition of
+literal cause name (quoted in FAILURES.md #4). Then `predicted_cause` — a single
+enum — kept one and discarded the other at the schema boundary, and everything
+downstream scores, routes and books on the survivor alone. The reported `Rs 0.00 at risk` is true under an entry-level definition of
 "wrong" and still understates this. It is a **contract defect, not a model
 defect** — the information was produced, then thrown away by the shape of the
 output, and no prompt recovers a second label from a schema with room for one.
@@ -436,12 +425,11 @@ flagged it itself* or because it fell *below the 0.70 gate*. Collapsing those in
 "needs review" would have hidden finding #1 — that the gate never fires is only
 visible if the UI refuses to conflate the two.
 
-**The audit log** is append-only JSONL: every action appends one line, nothing is
-rewritten, and deciding a case twice leaves both lines in order. The route
-**re-reads the case server-side before writing**, so the log records what the model
-actually said rather than what a client claimed. JSONL over Supabase because there
-is no schema to migrate, no auth to configure, and no second service to keep alive
-for one growing append-only list.
+**The audit log** is append-only JSONL: every action appends one line and nothing
+is rewritten. The route **re-reads the case server-side before writing**, so it
+records what the model actually said rather than what a client claimed. JSONL over
+Supabase because there is no schema to migrate, no auth to configure, and no second
+service to keep alive for one growing append-only list.
 
 ## 9. Isolation as a build-time guarantee
 
@@ -457,51 +445,36 @@ that must know the ground truth.
 
 **Negative control.** Adding a labels import to a matcher file, a classifier file
 and a UI file each fails the build with exit code 1 — not merely a warning. (The
-guard also had to be taught to strip comments, because its own documentation
-saying *"never reads labels.json"* matched its own rule.) That makes "the model
-never saw the answers" a **provable property of the codebase** rather than a claim
-about how it happened to be run.
+guard had to be taught to strip comments, because its own documentation saying
+*"never reads labels.json"* matched its own rule.) That makes "the model never saw
+the answers" a **provable property of the codebase**, not a claim about how it was
+run.
 
 ## 10. What broke, and what that tells you
 
-Nineteen defects are logged in [FAILURES.md](FAILURES.md) with symptom, root
-cause, fix, and what caught each. Four are worth reading here.
+[FAILURES.md](FAILURES.md) records the four failures that actually changed a design
+decision. Two were generator bugs stacked behind each other — a rebalancer that
+could cycle forever, and, once that was fixed, the discovery that a top-decile
+refund exceeds an entire day's gross credits, which is a modelling defect rather
+than a coding one. One was `assertNothingDropped` (§5) catching two accounting
+bugs seed 42 never exposed. One was resume keying on identity instead of on what
+actually happened, which cost a silent hole after an outage and later let
+`--provider rules` skip a committed Gemini run and exit 0 — found by cloning the
+finished repo and running its own Quickstart. The fourth is §7's bundled-defect
+blind spot, the only one left deliberately unfixed.
 
-**Settlement rebalancer infinite loop.** `generate.ts --seed 99` hung — oversized
-debits were pushed to an adjacent day, the mover could go either direction, so a
-debit too large for both neighbours bounced forever. Replaced with a forward-only
-carry sweep. One seed in five could not generate at all.
-
-**Refund exceeding daily settlement capacity.** Immediately behind it: amounts run
-to ₹85,000, but 500 orders over 30 days is ~₹30,000 of gross credit per day, so
-refunding a top-decile payment exceeds a day's takings. A modelling defect, not a
-coding one — the distribution and the batching rule were individually reasonable
-and jointly impossible.
-
-**The bundled-defect blind spot** (§7, finding 3) is a different kind of finding:
-not an engineering bug but the system surfacing its own limitation, measured
-rather than worked around, and the only entry left deliberately unfixed.
-
-**Resume skipped a run it had never done.** Found last, by cloning the finished
-public repo and running its own README. `--provider rules` reported all 43 cases
-"already classified" and exited 0, because resume was keyed on `residue_id` and
-the repo ships a completed Gemini run under that filename — so the documented
-offline path produced nothing while looking like it succeeded. Resume now
-compares provider and model and refuses to mix. The generalisation beats the fix:
-*the artefacts a repo ships are part of its behaviour*, and a path only exercised
-on the machine that already ran it is untested.
-
-The closing table in `FAILURES.md` is the argument: type checking found none of
-the nineteen, a passing scorer found none of the first seventeen, and the
-highest-yield mechanisms were the cheapest — run the code over 42 seeds instead of
-one, assert that nothing disappears, clone the repo and run its own instructions.
+The pattern across all four is the argument: type checking found none of them, and
+a passing scorer on seed 42 found none of them either. The highest-yield mechanisms
+were the cheapest — run the code over 42 seeds instead of one, assert that nothing
+can silently disappear, and clone the repo to run its own instructions. The last of
+those generalises: *the artefacts a repo ships are part of its behaviour*, and a
+path only exercised on the machine that already ran it is untested.
 
 ## 11. Stack, and why
 
 | | |
 |---|---|
 | Next.js 15 (App Router) + TypeScript `strict`, `tsx` | one framework, one deploy target, scripts run with no build step |
-| Hand-written CSS with custom properties | no Tailwind; see below |
 | Zod + `@anthropic-ai/sdk` + `@google/genai` | one schema, two model transports, contracts derived from it |
 | Supabase | available, deliberately unused |
 
@@ -513,16 +486,15 @@ inter-process boundary that can fail live on camera, in exchange for nothing.
 **Two honest notes.** The UI is hand-written CSS, not Tailwind: a dense finance-ops
 tool with hard-aligned tabular figures is more precisely expressed in ~600 lines of
 CSS than utility classes, and keeps the bundle at 4.4 kB. And **Supabase is not a
-dependency** — scoped for audit-log persistence, JSONL shipped instead (§8).
+dependency** — scoped for the audit log, JSONL shipped instead (§8).
 
 ## 12. What's not built
 
-- **Multi-cause labeling.** The structural fix for §7's blind spot. A residue
-  entry can carry two real defects; the schema has room for one. The scoring
-  harness already measures what it would recover: three defects, 37/40 → 40/40.
-- **Multi-seed switching and shared persistence.** The seed is a constant and the
-  audit log is one machine's file. The route already takes a `seed` parameter, so
-  the first is wiring; a second reviewer would need the log behind a service.
-- **Threshold sweeping.** `CONFIDENCE_THRESHOLD` sits alone in `config.ts` to make
-  a sweep trivial, but finding #1 means it changes nothing below 0.90 here — the
-  interesting experiment is a differently calibrated model, not a different number.
+- **Multi-cause labeling.** The structural fix for §7's blind spot: a residue entry
+  can carry two real defects and the schema has room for one. The harness already
+  measures what it would recover — three defects, 37/40 → 40/40.
+- **Multi-seed switching and shared persistence.** The route already takes a `seed`
+  parameter, so the first is wiring; a second reviewer would need the audit log
+  behind a service.
+- **Threshold sweeping.** `CONFIDENCE_THRESHOLD` sits alone in `config.ts` so a
+  sweep is trivial, but finding #1 means it changes nothing below 0.90 here.

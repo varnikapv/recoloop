@@ -170,7 +170,7 @@ matcher false positives were correctly declined as `INSUFFICIENT_EVIDENCE`.
 37/40 is a **ceiling, not a miss**: three residue entries each carry two real
 defects, and `predicted_cause` holds one label. The model named the second defect
 in its reasoning in all three cases; the schema discarded it. That is a contract
-defect, and it is [logged as defect 18](FAILURES.md).
+defect, and it is [logged as FAILURES.md #4](FAILURES.md).
 
 ## Label isolation is a build failure, not a convention
 
@@ -217,5 +217,5 @@ scripts/checkIsolation.ts   build guard
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** — how each stage works and why, the
   dataset contract, the measured classifier comparison, and what the confidence
   gate actually did.
-- **[FAILURES.md](FAILURES.md)** — all 19 defects found during construction, what
-  caught each one, and what it cost.
+- **[FAILURES.md](FAILURES.md)** — the four failures that changed a design
+  decision: what broke, why, and what each one changed.
