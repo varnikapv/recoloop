@@ -68,7 +68,8 @@ flowchart LR
   class C,G ai
   class AUTO,HUM,A hum
 
-  style SRC fill:#f7f9fb,stroke:#5b6b7c,color:#23303d```
+  style SRC fill:#f7f9fb,stroke:#5b6b7c,color:#23303d
+```
 
 Everything left of the classifier is deterministic and has no model anywhere in
 it. Everything right of the gate is a person. The model occupies exactly the

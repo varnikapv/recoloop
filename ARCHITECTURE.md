@@ -26,12 +26,12 @@ flowchart LR
   classDef bank fill:#fdf3e3,stroke:#b26a00,color:#6b4100
   class ORD src
   class PAY,LINE,BATCH mid
-  class BANK bank```
+  class BANK bank
+```
 
 Each arrow is a join, and they get progressively weaker: two explicit columns, a
-grouping, and then a 12-digit string inside a description field matched against a
-reconstructed batch total under date tolerance. Reconciliation is proving the
-₹1,000 the merchant expected and that batch credit are the same money.
+grouping, then a 12-digit string inside a description field matched against a
+reconstructed batch total under date tolerance.
 
 ## 2. Design principle
 
@@ -81,11 +81,12 @@ flowchart LR
 
   style DET fill:#f4faf6,stroke:#2f6b4f,color:#17402e
   style AI fill:#f9f6fc,stroke:#6b4f8f,color:#3d2b55
-  style HUM fill:#fefaf3,stroke:#b26a00,color:#6b4100```
+  style HUM fill:#fefaf3,stroke:#b26a00,color:#6b4100
+```
 
 `labels.json` is written once by the generator and read only by the three scorers.
-No edge runs from it to the matcher, the classifier, or the UI — and §9 explains
-why that is a build-time guarantee rather than a promise.
+No edge runs from it to the matcher, the classifier or the UI — §9 explains why
+that is a build-time guarantee rather than a promise.
 
 ## 4. Data foundation
 
@@ -155,8 +156,7 @@ PASS  every defect manifests exactly as its taxonomy says  40/40 labels recovere
 ```
 
 Between them every settlement is checked — for exact correctness or for the exact
-expected deviation — and every injected defect is proven present and findable from
-the CSVs alone.
+expected deviation — and every defect proven present and findable from the CSVs.
 
 ## 5. Deterministic matcher
 
@@ -233,7 +233,8 @@ flowchart TB
   class MA ok
   class RE res
   class EX exc
-  class ASSERT assert```
+  class ASSERT assert
+```
 
 It was not theory: it caught two bugs seed 42 never exposed and only a 42-seed
 sweep revealed — clean **refund lines went unaccounted** when their parent order was
@@ -267,7 +268,7 @@ noise (§6) — which is why stage 4 hands over a raw day-delta, not a verdict.
 **Known precision limit.** The duplicate heuristic (identical amount, ≤90s apart)
 degrades with density: at `--orders 5000` it produces 17 `DUPLICATE_ORDER_PAIR`
 findings for 12 real defects. Capture stays 120/120, so the cost is precision, not
-recall — the right direction for a stage feeding a classifier.
+recall.
 
 **Output departures from the spec.** `excluded` is a third bucket, per above.
 `entities` uses arrays rather than singular keys, because a duplicate pair owns two
@@ -342,7 +343,8 @@ flowchart LR
   class CN none
 
   style SYM fill:#f4faf6,stroke:#2f6b4f,color:#17402e
-  style CAU fill:#f9f6fc,stroke:#6b4f8f,color:#3d2b55```
+  style CAU fill:#f9f6fc,stroke:#6b4f8f,color:#3d2b55
+```
 
 The 1:1 arrow is the easy half — a lookup table gets it, which is what the `rules`
 baseline is and why it also scores 37/40. The forks are the work: a delay of exactly
@@ -358,9 +360,8 @@ it**. It works: **6 of 6 matcher false positives were correctly declined** at
 
 **Two structural facts the score depends on.** The ceiling is 37/40: three entries
 bundle two real defects each and one prediction cannot name both, so the scorer
-prints the ceiling rather than letting the headline look like model failure. And
-six entries carry no defect at all — the T+3 false positives — scored separately,
-because "does it know the matcher was wrong" is a different question.
+prints the ceiling rather than letting the headline look like model failure. And six
+entries carry no defect at all — the T+3 false positives — scored separately.
 
 ## 7. The confidence gate — and what actually happened
 
@@ -422,8 +423,7 @@ Three panels, client-side case switching so the queue is instant.
 
 **The banner distinction.** Each case states whether it is here because *the model
 flagged it itself* or because it fell *below the 0.70 gate*. Collapsing those into
-"needs review" would have hidden finding #1 — that the gate never fires is only
-visible if the UI refuses to conflate the two.
+"needs review" would have hidden finding #1 entirely.
 
 **The audit log** is append-only JSONL: every action appends one line and nothing
 is rewritten. The route **re-reads the case server-side before writing**, so it
