@@ -30,7 +30,7 @@ flowchart LR
     B["bank_statement.csv<br/><i>28 rows · one credit per batch</i>"]
   end
 
-  N["normalise<br/><i>2 date formats, dirty ids,<br/>&quot;1,24,530.00&quot; → paise, UTR from free text</i>"]
+  N["normalise<br/><i>2 date formats, dirty ids,<br/>1,24,530.00 → paise,<br/>UTR from free text</i>"]
   M["deterministic matcher<br/><i>4 pure stages</i>"]
 
   MA["<b>matched</b><br/>379 lines"]
@@ -38,7 +38,7 @@ flowchart LR
   R["<b>residue</b><br/>43 exceptions"]
 
   C["LLM classifier<br/><i>1 call per case, temp 0</i>"]
-  G{"confidence gate<br/><i>&lt; 0.70 forces review</i>"}
+  G{"confidence gate<br/><i>below 0.70 forces review</i>"}
   AUTO["auto-approved<br/>27"]
   HUM["human review<br/>16"]
   A[/"audit_log.jsonl<br/><i>append-only</i>"/]

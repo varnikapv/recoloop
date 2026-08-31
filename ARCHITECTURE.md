@@ -48,7 +48,7 @@ flowchart LR
   end
   subgraph AI["2 · Model — explains only the residue"]
     direction TB
-    CLS["classify.ts<br/><i>1 call per entry</i>"] --> GATE{"gate<br/><i>&lt; 0.70 → review</i>"}
+    CLS["classify.ts<br/><i>1 call per entry</i>"] --> GATE{"gate<br/><i>below 0.70 → review</i>"}
   end
   subgraph HUM["3 · Human — the only thing that authorizes money"]
     direction TB
