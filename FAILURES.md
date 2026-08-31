@@ -7,7 +7,10 @@ does not, and whether anything would have told you.
 
 Nine of these were found by a guardrail rather than by a person looking. Four
 were found only because a sweep ran the same code over 42 seeds instead of one.
-Two would have shipped silently and corrupted the headline number.
+Two would have shipped silently and corrupted the headline number. Number 18 is
+not an engineering bug at all — it is the output contract throwing away a correct
+answer, and it is the only entry here left deliberately unfixed. Number 19 was
+found last, by cloning the finished repo and running its own README.
 
 **Legend.** *Silent* = would have produced a plausible wrong answer with no
 error. *Loud* = crashed or refused to run.
@@ -31,6 +34,8 @@ error. *Loud* = crashed or refused to run.
 | 15 | UI | Decision bar overlapped the content it acts on | Silent | Screenshot |
 | 16 | UI | Long identifiers overflowed their column | Silent | Screenshot |
 | 17 | UI | Merged evidence keys rendered as mangled prose | Silent | Screenshot |
+| 18 | Classifier contract | Output schema discarded a second real defect | Silent | Scorer ceiling analysis |
+| 19 | Classifier CLI | Resume skipped a run it had never done | Silent | Clean-clone rehearsal |
 
 ---
 
@@ -309,6 +314,70 @@ and looking at it. A screenshot is a test.
 
 ---
 
+## 18 — The output schema discarded a second real defect
+
+**Symptom.** Classifier accuracy sat at 37/40 and would not move. Rewording the
+prompt changed nothing, which is the signal that the problem is not the prompt.
+
+**Root cause.** Three residue entries each carry *two* real defects: a
+`DUPLICATE_WEBHOOK` order pair whose settled twin sits inside an `ON_HOLD` batch.
+The model did not miss the second one — in all three cases it named the duplicate
+pair in its `reasoning`, once by the literal cause name (*"While there is a
+DUPLICATE_WEBHOOK between order_pq2uzwovet26mz and order_vtjf1cub68hjo8, the
+ON_HOLD status is a settlement-level cause that takes precedence"*). But
+`predicted_cause` is a single enum. The second label had nowhere to go and was
+dropped at the schema boundary, and scoring, routing and the proposed adjusting
+entry all read that one field. Two of the three were then auto-approved at
+confidence 1.00.
+
+**Fix.** Not applied. This one is structural, and patching it in the prompt would
+only hide it: no wording can return two labels through a field that holds one.
+`predicted_cause` has to become a ranked list, with the scorer crediting a
+correct secondary cause and the UI rendering it. Left in place, and quantified,
+because a known ceiling that is measured is worth more than a silent one that is
+worked around. The scoring harness already reports exactly what the fix would
+recover: three defects, 37/40 → 40/40.
+
+**Caught by.** The scorer's own ceiling analysis, then confirmed by reading the
+raw `classifications.jsonl` line by line. Neither the type checker nor a passing
+score would have shown it — accuracy of 37/40 reads as ordinary model error
+until you notice the same three entries are unreachable by construction, and
+that the model had in fact answered correctly in prose.
+
+---
+
+## 19 — Resume skipped a run it had never done
+
+**Symptom.** In a clean clone, `classify.ts --seed 42 --provider rules` printed
+`provider: rules-baseline`, reported all 43 cases "skipped (already classified)",
+and exited 0. `scoreClassify.ts` then reported `provider=gemini`. The offline,
+no-API-key path documented in the README had produced nothing at all.
+
+**Root cause.** Resume was keyed on `residue_id` alone. The repo ships a
+completed Gemini run as `classifications.jsonl`, so every id was already present
+and every entry was skipped — while the header still announced the requested
+provider. Both providers emit the same cause distribution, so the run summary
+looked identical to a real one. Nothing was wrong on screen except the one line
+naming the provider, 43 lines above the answer.
+
+**Fix.** [`src/lib/classify/run.ts`](src/lib/classify/run.ts) — `matchesProvider`
+compares provider *and* model, and `assertSingleProvider` refuses to append one
+provider's results onto another's, exiting non-zero with the two ways out
+(`--fresh` to overwrite, `--dir` to keep both). It throws rather than discarding
+the existing file, because that file is a completed run someone paid for in
+tokens. Added `--fresh`, which required teaching `parseArgs` bare boolean
+switches, and `--file` on the scorer so the rules baseline can be scored in place
+without moving anything.
+
+**Caught by.** A pre-submission clean-clone rehearsal — cloning the public repo
+and running the documented commands in order, as a reader would. Nothing in the
+working tree could have shown it, because the working tree already had the file
+in the state the developer expected. The generalisation: *the artefacts a repo
+ships are part of its behaviour*, and a path only exercised on a machine that
+already ran it is a path never tested.
+
+---
+
 ## Not code defects: environment failures encountered live
 
 Recorded because each one blocked a run and each was diagnosed from the API's
@@ -339,8 +408,17 @@ cannot distinguish "wait" from "you are out" will burn an afternoon politely.
 | Deliberate crash / interruption tests | 10, 11 | ~20 lines of test |
 | Screenshotting the rendered page | 15, 16, 17 | one browser call |
 | Reviewer reading the code | 3, 4 | free, and the highest-value pair |
+| Scoring against ground truth | 18 | the reason labels exist |
+| Clean-clone rehearsal of the docs | 19 | one clone, six commands |
 | A real API failing for real | 11, 12 | unavoidable |
 
-Type checking found none of them. A passing scorer found none of them. The two
-most valuable checks were the cheapest: run it on more than one input, and
-assert that nothing disappears.
+Type checking found none of the nineteen. A *passing* scorer found none of the
+first seventeen — every one of them survived a green run. The exceptions are 18,
+and only because the scorer reports a ceiling rather than a percentage: 37/40
+alone looks like ordinary model error, and it is the "3 entries bundle two real
+defects" line underneath it that turns a number into a diagnosis — and 19, which
+no amount of scoring could have found, because it only appears on a machine that
+has not already run the thing.
+
+The two most valuable checks were still the cheapest: run it on more than one
+input, and assert that nothing disappears.
