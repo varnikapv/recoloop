@@ -8,16 +8,42 @@ actually altered a design decision.
 
 ## 1 — Two generator bugs, one behind the other
 
-`generate.ts --seed 99` hung — a rebalancer moving oversized refund debits
-between settlement days could push a debit back and forth indefinitely
-between two days too small to absorb it. Fixed with a forward-only carry
-sweep that makes a cycle impossible rather than just unlikely. That fix
-immediately exposed the deeper problem behind it: order amounts run to
-₹85,000, but a typical day's gross settlement is only ~₹30,000, so a single
-large refund can exceed an entire day's takings — a modelling constraint,
-not a code bug. Refund-eligible payments are now capped at half the median
-daily gross, the way a real gateway would throttle refunds that outrun a
-day's captures.
+**Symptom.** `generate.ts --seed 99` hung, then failed with `settlement
+rebalancing failed to converge` after 10,000 moves. Seeds 1, 7, 42 and 2024
+were all fine, so nothing showed up until the generator was run across many
+seeds — at which point roughly one seed in five could not produce a dataset
+at all.
+
+**Root cause, bug A.** A settlement may never be a net debit, so oversized
+refund debits were pushed to an adjacent day. The mover could go forward *or*
+backward, so a debit too large for either neighbour bounced between the two
+indefinitely. The convergence guard I had written turned that infinite loop
+into an error message, which is the only reason it was loud rather than a
+silent hang.
+
+**Root cause, bug B.** Fixing the sweep immediately exposed the deeper problem
+behind it: order amounts run to ₹85,000, but 500 orders over a 30-day window
+is only ~₹30,000 of gross credit per day, so a full refund of a top-decile
+payment exceeds an entire day's takings. No batch could net positive around
+it. That is a modelling constraint, not a coding error — the amount
+distribution and the batching rule were each reasonable and jointly
+impossible.
+
+**Fix.** [`src/lib/generate.ts`](src/lib/generate.ts) — the rebalancer is now a
+forward-only carry sweep: each day absorbs what it can and carries the rest
+to the next, with a final pass placing anything left into the roomiest batch.
+Forward-only cannot cycle, so termination is structural rather than
+guard-counted, and the convergence guard is gone. Refund-eligible payments are
+capped at half the median daily gross — the way a real gateway throttles
+refunds that outrun a day's captures — and that cap is documented in
+ARCHITECTURE.md as a stated modelling assumption rather than buried in code.
+
+**Why it mattered.** Bug A was loud and bug B was structural, and neither was
+reachable from the seed used during development. Both were found the same way:
+running the same code over 42 seeds instead of one. That single change in
+habit is the cheapest check in this project and it found the two failures that
+would have made the dataset ungeneratable for a fifth of all inputs.
+
 ---
 
 ## 2 — The partition assertion caught two bugs a single seed never exposed
