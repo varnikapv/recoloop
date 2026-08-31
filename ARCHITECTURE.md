@@ -9,6 +9,7 @@ unrelated cycles netted in; the bank records one credit for an entire day's batc
 and never itemises a transaction.
 
 ```mermaid
+%%{init:{'theme':'base','themeVariables':{'background':'#ffffff','textColor':'#1f2937','titleColor':'#23303d','lineColor':'#6b7280','clusterBkg':'#f7f9fb','clusterBorder':'#5b6b7c','edgeLabelBackground':'#ffffff','fontSize':'14px'}}}%%
 flowchart LR
   ORD["<b>order</b><br/>₹1,000.00<br/><i>merchant ledger</i>"]
   PAY["<b>payment</b> captured<br/>− ₹20.00 fee (2.00%)<br/>− ₹3.60 GST (18% of fee)"]
@@ -20,9 +21,12 @@ flowchart LR
   LINE -->|"settlement_id"| BATCH
   BATCH -->|"UTR only"| BANK
 
-  style ORD fill:#f4f6f8,stroke:#5b6b7c
-  style BANK fill:#fdf7ea,stroke:#b26a00
-```
+  classDef src fill:#eef1f5,stroke:#5b6b7c,color:#23303d
+  classDef mid fill:#f2f4f6,stroke:#6b7280,color:#1f2937
+  classDef bank fill:#fdf3e3,stroke:#b26a00,color:#6b4100
+  class ORD src
+  class PAY,LINE,BATCH mid
+  class BANK bank```
 
 Each arrow is a join, and they get progressively weaker: two explicit columns, a
 grouping, and then a 12-digit string inside a description field matched against a
@@ -41,6 +45,7 @@ Everything below is evidence for that sentence.
 ## 3. Pipeline
 
 ```mermaid
+%%{init:{'theme':'base','themeVariables':{'background':'#ffffff','textColor':'#1f2937','titleColor':'#23303d','lineColor':'#6b7280','clusterBkg':'#f7f9fb','clusterBorder':'#5b6b7c','edgeLabelBackground':'#ffffff','fontSize':'14px'}}}%%
 flowchart LR
   subgraph DET["1 · Deterministic — no model on this path"]
     direction TB
@@ -62,12 +67,21 @@ flowchart LR
   GATE -.->|"scored against"| SC
   L x-.-x BLOCKED["matcher · classifier · UI<br/><b>cannot import this</b><br/><i>checkIsolation.ts fails the build</i>"]
 
-  classDef blocked fill:#fff,stroke:#9b2c22,stroke-dasharray:5 4,color:#9b2c22;
-  class BLOCKED blocked;
-  style DET fill:#f2f6f3,stroke:#2f6b4f
-  style AI fill:#f6f3f8,stroke:#6b4f8f
-  style HUM fill:#faf7f2,stroke:#b26a00
-```
+  classDef det fill:#e9f2ec,stroke:#2f6b4f,color:#17402e
+  classDef ai fill:#f1ecf7,stroke:#6b4f8f,color:#3d2b55
+  classDef hum fill:#fdf3e3,stroke:#b26a00,color:#6b4100
+  classDef truth fill:#fbf1dc,stroke:#b26a00,color:#6b4100
+  classDef blocked fill:#fff5f4,stroke:#9b2c22,stroke-dasharray:5 4,color:#8f2a20
+
+  class GEN,NORM,MATCH det
+  class CLS,GATE ai
+  class UI,AUDIT hum
+  class L,SC truth
+  class BLOCKED blocked
+
+  style DET fill:#f4faf6,stroke:#2f6b4f,color:#17402e
+  style AI fill:#f9f6fc,stroke:#6b4f8f,color:#3d2b55
+  style HUM fill:#fefaf3,stroke:#b26a00,color:#6b4100```
 
 `labels.json` is written once by the generator and read only by the three scorers.
 No edge runs from it to the matcher, the classifier, or the UI — and §9 explains
@@ -198,6 +212,7 @@ failure modes looks like versus one assumed correct on paper.
 ### The partition invariant
 
 ```mermaid
+%%{init:{'theme':'base','themeVariables':{'background':'#ffffff','textColor':'#1f2937','titleColor':'#23303d','lineColor':'#6b7280','clusterBkg':'#f7f9fb','clusterBorder':'#5b6b7c','edgeLabelBackground':'#ffffff','fontSize':'14px'}}}%%
 flowchart TB
   IN["every order, line,<br/>settlement and bank row"] --> Q{"owned by<br/>a finding?"}
   Q -->|yes| RE["<b>residue</b><br/>43 entries"]
@@ -210,11 +225,17 @@ flowchart TB
   RE -.- ASSERT
   EX -.- ASSERT
 
-  style MA fill:#f2f6f3,stroke:#2f6b4f
-  style RE fill:#fdf7ea,stroke:#b26a00
-  style EX fill:#f4f6f8,stroke:#5b6b7c
-  style ASSERT fill:#fff,stroke:#9b2c22,stroke-dasharray:5 4,color:#9b2c22
-```
+  classDef q fill:#f2f4f6,stroke:#6b7280,color:#1f2937
+  classDef ok fill:#e9f2ec,stroke:#2f6b4f,color:#17402e
+  classDef res fill:#fdf3e3,stroke:#b26a00,color:#6b4100
+  classDef exc fill:#eef1f5,stroke:#5b6b7c,color:#23303d
+  classDef assert fill:#fff5f4,stroke:#9b2c22,stroke-dasharray:5 4,color:#8f2a20
+
+  class IN,Q,Q2,Q3 q
+  class MA ok
+  class RE res
+  class EX exc
+  class ASSERT assert```
 
 It was not theory. It caught two bugs that seed 42 never exposed and that only
 appeared across a 42-seed sweep: clean **refund lines went unaccounted** when their
@@ -298,6 +319,7 @@ would be decorative. The mapping is deliberately not 1:1, and resolving that
 ambiguity is the entire reason the layer exists.
 
 ```mermaid
+%%{init:{'theme':'base','themeVariables':{'background':'#ffffff','textColor':'#1f2937','titleColor':'#23303d','lineColor':'#6b7280','clusterBkg':'#f7f9fb','clusterBorder':'#5b6b7c','edgeLabelBackground':'#ffffff','fontSize':'14px'}}}%%
 flowchart LR
   subgraph SYM["symptoms — what the matcher saw"]
     direction TB
@@ -319,10 +341,16 @@ flowchart LR
   F2 -->|"line_type = adjustment"| C3
   F3 -->|"1:1"| C4
 
-  style SYM fill:#f2f6f3,stroke:#2f6b4f
-  style CAU fill:#f6f3f8,stroke:#6b4f8f
-  style CN fill:#fff,stroke:#9b2c22,color:#9b2c22
-```
+  classDef sym fill:#e9f2ec,stroke:#2f6b4f,color:#17402e
+  classDef cau fill:#f1ecf7,stroke:#6b4f8f,color:#3d2b55
+  classDef none fill:#fff5f4,stroke:#9b2c22,color:#8f2a20
+
+  class F1,F2,F3 sym
+  class C1,C2,C3,C4 cau
+  class CN none
+
+  style SYM fill:#f4faf6,stroke:#2f6b4f,color:#17402e
+  style CAU fill:#f9f6fc,stroke:#6b4f8f,color:#3d2b55```
 
 The 1:1 arrow is the easy half — a lookup table gets it, which is what the `rules`
 baseline is and why it also scores 37/40. The forks are the work: a delay of

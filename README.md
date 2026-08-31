@@ -22,6 +22,7 @@ could not resolve; a human authorizes anything that moves money.
 ## The loop
 
 ```mermaid
+%%{init:{'theme':'base','themeVariables':{'background':'#ffffff','textColor':'#1f2937','titleColor':'#23303d','lineColor':'#6b7280','clusterBkg':'#f7f9fb','clusterBorder':'#5b6b7c','edgeLabelBackground':'#ffffff','fontSize':'14px'}}}%%
 flowchart LR
   subgraph SRC["three sources that disagree"]
     direction TB
@@ -55,14 +56,19 @@ flowchart LR
   G --> HUM --> A
   AUTO -.->|"spot-check"| A
 
-  style SRC fill:#f4f6f8,stroke:#5b6b7c
-  style M fill:#f2f6f3,stroke:#2f6b4f
-  style N fill:#f2f6f3,stroke:#2f6b4f
-  style C fill:#f6f3f8,stroke:#6b4f8f
-  style G fill:#f6f3f8,stroke:#6b4f8f
-  style HUM fill:#faf7f2,stroke:#b26a00
-  style A fill:#faf7f2,stroke:#b26a00
-```
+  classDef src fill:#eef1f5,stroke:#5b6b7c,color:#23303d
+  classDef det fill:#e9f2ec,stroke:#2f6b4f,color:#17402e
+  classDef ai fill:#f1ecf7,stroke:#6b4f8f,color:#3d2b55
+  classDef hum fill:#fdf3e3,stroke:#b26a00,color:#6b4100
+  classDef out fill:#f2f4f6,stroke:#6b7280,color:#1f2937
+
+  class O,S,B src
+  class N,M det
+  class MA,EX,R out
+  class C,G ai
+  class AUTO,HUM,A hum
+
+  style SRC fill:#f7f9fb,stroke:#5b6b7c,color:#23303d```
 
 Everything left of the classifier is deterministic and has no model anywhere in
 it. Everything right of the gate is a person. The model occupies exactly the
