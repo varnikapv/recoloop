@@ -186,12 +186,52 @@ export function isResumable(record: ClassificationRecord, retryFailed: boolean):
   return true;
 }
 
+/**
+ * Resume is keyed on residue_id, which is not enough on its own: a record
+ * written by a different provider answers a different question.
+ *
+ * Without this check, `--provider rules` run over a file written by
+ * `--provider gemini` skips every entry, writes nothing, and the scorer then
+ * reports the Gemini run while the operator believes they produced the offline
+ * baseline. It fails silently, because both providers emit the same cause
+ * distribution. Mixing providers in one artefact is refused rather than
+ * merged — see assertSingleProvider.
+ */
+export function matchesProvider(record: ClassificationRecord, provider: Provider): boolean {
+  return record.provider === provider.name && record.model === provider.model;
+}
+
+/**
+ * Refuse to append one provider's results onto another's. Throws rather than
+ * silently discarding the existing file, because that file is a completed run
+ * someone paid for in tokens.
+ */
+export function assertSingleProvider(
+  completed: ReadonlyMap<string, ClassificationRecord>,
+  provider: Provider,
+  outputPath: string,
+): void {
+  const foreign = [...completed.values()].filter((r) => !matchesProvider(r, provider));
+  if (foreign.length === 0) return;
+  const existing = [...new Set(foreign.map((r) => `${r.provider}/${r.model}`))].sort().join(", ");
+  throw new Error(
+    `${outputPath} already holds ${foreign.length} record(s) from ${existing}, ` +
+      `but this run is ${provider.name}/${provider.model}.\n` +
+      `  Resume is keyed on residue_id, so continuing here would skip every entry ` +
+      `and leave the other provider's results in place.\n` +
+      `  To start a fresh run for this provider:  --fresh  (overwrites the file)\n` +
+      `  To keep both:  --dir <another directory>, or move the existing file aside first.`,
+  );
+}
+
 export interface RunOptions {
   entries: readonly ResidueEntry[];
   provider: Provider;
   outputPath: string;
   /** Also redo entries whose output failed schema validation twice. */
   retryFailed?: boolean;
+  /** Discard any existing output and classify every entry from scratch. */
+  fresh?: boolean;
   onProgress?: (progress: RunProgress) => void;
   onSkip?: (residueId: string, index: number, total: number) => void;
 }
@@ -217,7 +257,9 @@ const sleep = (ms: number): Promise<void> =>
  */
 export async function runClassification(options: RunOptions): Promise<RunSummary> {
   const retryFailed = options.retryFailed ?? false;
+  if (options.fresh === true) writeFileSync(options.outputPath, "", "utf8");
   const { completed, tornLines } = loadCompleted(options.outputPath);
+  assertSingleProvider(completed, options.provider, options.outputPath);
   // Drop records that do not count as done, so they are re-called and the file
   // never keeps two rows for one case.
   let retriedFailures = 0;

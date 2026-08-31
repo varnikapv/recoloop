@@ -122,7 +122,8 @@ async function main(): Promise<void> {
     provider: "",
     model: "",
     limit: 0,
-    "retry-failed": "",
+    "retry-failed": false,
+    fresh: false,
     order: "",
   });
   loadDotEnv();
@@ -151,7 +152,8 @@ async function main(): Promise<void> {
     entries,
     provider,
     outputPath,
-    retryFailed: args["retry-failed"] !== "",
+    retryFailed: args["retry-failed"],
+    fresh: args.fresh,
     onSkip: (id, index, total) => {
       console.log(`[${index}/${total}] ${id}  skipped (already classified)`);
     },

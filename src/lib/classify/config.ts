@@ -25,10 +25,17 @@ export const DEFAULT_MODEL = "claude-sonnet-4-6";
 /**
  * gemini-2.5-flash was the intended default, but the API now rejects it for new
  * keys with 404 NOT_FOUND: "no longer available to new users ... use
- * models/gemini-3.6-flash". Override with GEMINI_MODEL or --model if your
- * project still has 2.5 access.
+ * models/gemini-3.6-flash".
+ *
+ * The obvious replacement, gemini-3.6-flash, is unusable here: its free tier caps
+ * at 20 requests per day (429 RESOURCE_EXHAUSTED,
+ * GenerateRequestsPerDayPerProjectPerModel-FreeTier), and a run is 43 calls, so
+ * it cannot finish a single dataset. Backoff cannot manufacture quota. The
+ * default is therefore the model the published results were actually produced
+ * with, so the documented command completes on a free key. Override with
+ * GEMINI_MODEL or --model.
  */
-export const DEFAULT_GEMINI_MODEL = "gemini-3.6-flash";
+export const DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite";
 
 /**
  * Minimum spacing between Gemini calls, in ms.

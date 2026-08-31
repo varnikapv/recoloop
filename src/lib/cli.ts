@@ -1,14 +1,23 @@
-export type ArgSpec = Readonly<Record<string, number | string>>;
+export type ArgSpec = Readonly<Record<string, number | string | boolean>>;
 
-/** Minimal --flag value parser. Unknown flags are an error, not a shrug. */
+/**
+ * Minimal --flag value parser. Unknown flags are an error, not a shrug.
+ *
+ * A flag whose default is a boolean is a bare switch: `--fresh` sets it true and
+ * consumes no value. `--fresh=false` still works for an explicit override.
+ */
 export function parseArgs<T extends ArgSpec>(argv: readonly string[], defaults: T): T {
-  const out: Record<string, number | string> = { ...defaults };
+  const out: Record<string, number | string | boolean> = { ...defaults };
   for (let i = 0; i < argv.length; i++) {
     const token = argv[i] as string;
     if (!token.startsWith("--")) throw new Error(`unexpected argument: ${token}`);
     const [flag, inlineValue] = token.slice(2).split("=", 2);
     const key = flag as string;
     if (!(key in defaults)) throw new Error(`unknown flag: --${key}`);
+    if (typeof defaults[key] === "boolean") {
+      out[key] = inlineValue === undefined ? true : inlineValue !== "false";
+      continue;
+    }
     const raw = inlineValue ?? argv[++i];
     if (raw === undefined) throw new Error(`--${key} needs a value`);
     if (typeof defaults[key] === "number") {

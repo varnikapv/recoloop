@@ -62,9 +62,12 @@ interface Observation {
 }
 
 function main(): void {
-  const args = parseArgs(process.argv.slice(2), { seed: 42, dir: "" });
+  const args = parseArgs(process.argv.slice(2), { seed: 42, dir: "", file: "" });
   const seed = Math.trunc(args.seed);
   const dir = resolve(args.dir === "" ? `data/${seed}` : args.dir);
+  // --file scores an alternate provider's run (e.g. classifications.rules.jsonl)
+  // without moving files around. Relative names resolve inside `dir`.
+  const classificationsPath = args.file === "" ? join(dir, "classifications.jsonl") : resolve(dir, args.file);
 
   const labels = loadLabels(dir);
   const matchResult = JSON.parse(
@@ -73,7 +76,7 @@ function main(): void {
   // Tolerate a half-written line from a crashed run rather than dying on it.
   let tornLines = 0;
   const records: ClassificationRecord[] = [];
-  for (const line of readFileSync(join(dir, "classifications.jsonl"), "utf8").split("\n")) {
+  for (const line of readFileSync(classificationsPath, "utf8").split("\n")) {
     if (line.trim() === "") continue;
     try {
       records.push(JSON.parse(line) as ClassificationRecord);
